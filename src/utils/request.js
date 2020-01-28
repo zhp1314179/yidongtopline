@@ -2,7 +2,7 @@ import axios from 'axios'
 import jsonBig from 'json-bigint' // 引入处理大数字
 
 // 默认的接口地址 使用复制一个axios方法
-const request = axios.crated({
+const request = axios.create({
   baseURL: 'http://ttapi.research.itcast.cn/'
 })
 // 处理大数字
