@@ -5,6 +5,7 @@ import store from './store' // 共享数据 容器
 import '@/utils/register' // vant 按需引入组件
 import 'amfe-flexible' // 动态设置rem基准值
 import './styles/index.less'
+import './utils/validation'
 Vue.config.productionTip = false
 
 new Vue({

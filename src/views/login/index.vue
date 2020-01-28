@@ -3,10 +3,18 @@
     <van-nav-bar title="注册/登录">
       <van-icon name="cross" slot="left" />
     </van-nav-bar>
-    <van-cell-group>
-      <van-field clearable v-model="user.mobile" label="手机号" placeholder="请输入用户名"></van-field>
-      <van-field type="password" v-model="user.code" label="验证码" placeholder="请输入验证码"></van-field>
-    </van-cell-group>
+    <ValidationObserver ref="form">
+      <ValidationProvider name="手机号" rules="required|mobile" immediate>
+        <van-field clearable v-model="user.mobile" placeholder="请输入用户名">
+          <i class="icon icon-shouji" slot="left-icon"></i>
+        </van-field>
+      </ValidationProvider>
+      <ValidationProvider name="验证码" rules="required|code">
+        <van-field type="password" v-model="user.code" placeholder="请输入验证码">
+          <i class="icon icon-mima" slot="left-icon"></i>
+        </van-field>
+      </ValidationProvider>
+    </ValidationObserver>
     <div class="login-btn-box">
       <van-button @click="onLogin" type="info" class="login-btn">登录</van-button>
     </div>
@@ -15,13 +23,14 @@
 
 <script>
 import { Login } from '@/api/user'
+// import { validate } from 'vee-validate'
 export default {
   name: 'Login',
   props: {},
   data () {
     return {
       user: {
-        mobile: '', // 手机号
+        mobile: '13911111111', // 手机号
         code: '' // 验证码
       }
     }
@@ -31,15 +40,29 @@ export default {
   mounted () {},
   watch: {},
   methods: {
+    // 登录
     async onLogin () {
+      const success = await this.$refs.form.validate()
+      if (!success) {
+        const errors = this.$refs.form.errors
+        console.log(errors)
+        for (let key in errors) {
+          const item = errors[key]
+          if (item[0]) {
+            this.$toast(item[0])
+            return
+          }
+        }
+      }
       this.$toast.loading({
         duration: 0, // 持续时间，0表示持续展示不停止
         forbidClick: true, // 是否禁止背景点击
         message: '登录中...' // 提示消息
       })
       try {
-        await Login(this.user)
-        console.log('登陆成功')
+        const { data } = await Login(this.user)
+        console.log(data)
+
         this.$toast.success('登录成功')
       } catch (error) {
         console.log('登录失败', error)
