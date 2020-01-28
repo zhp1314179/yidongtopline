@@ -8,7 +8,10 @@ import {
   Toast,
   CountDown,
   Tabbar,
-  TabbarItem
+  TabbarItem,
+  Search,
+  Tab,
+  Tabs
 } from 'vant'
 Vue.use(Button)
 Vue.use(NavBar)
@@ -19,3 +22,6 @@ Vue.use(Toast)
 Vue.use(CountDown)
 Vue.use(Tabbar)
 Vue.use(TabbarItem)
+Vue.use(Search)
+Vue.use(Tab)
+Vue.use(Tabs)
