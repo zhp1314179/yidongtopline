@@ -12,6 +12,21 @@
       <ValidationProvider name="验证码" rules="required|code">
         <van-field type="password" v-model="user.code" placeholder="请输入验证码">
           <i class="icon icon-mima" slot="left-icon"></i>
+          <van-count-down
+            @finish="isShowCount=false"
+            v-if="isShowCount"
+            format="ss s"
+            :time="time"
+            slot="button"
+          ></van-count-down>
+          <van-button
+            v-else
+            @click="onSendCode"
+            round
+            slot="button"
+            type="primary"
+            size="small"
+          >获取验证码</van-button>
         </van-field>
       </ValidationProvider>
     </ValidationObserver>
@@ -22,16 +37,18 @@
 </template>
 
 <script>
-import { Login } from '@/api/user'
-// import { validate } from 'vee-validate'
+import { login, getMobileCode } from '@/api/user'
+import { validate } from 'vee-validate'
 export default {
   name: 'Login',
   props: {},
   data () {
     return {
+      isShowCount: false,
+      time: 60 * 1000,
       user: {
         mobile: '13911111111', // 手机号
-        code: '' // 验证码
+        code: '246810' // 验证码
       }
     }
   },
@@ -40,6 +57,23 @@ export default {
   mounted () {},
   watch: {},
   methods: {
+    // 发送验证码
+    async onSendCode () {
+      const { mobile } = this.user
+      const validateResult = await validate(mobile, 'required|mobile', {
+        name: '手机号'
+      })
+      if (!validateResult.valid) {
+        this.$toast(validateResult.errors[0])
+        return
+      }
+      this.isShowCount = true
+      try {
+        await getMobileCode(mobile)
+      } catch (error) {
+        this.$toast('操作频繁')
+      }
+    },
     // 登录
     async onLogin () {
       const success = await this.$refs.form.validate()
@@ -60,10 +94,10 @@ export default {
         message: '登录中...' // 提示消息
       })
       try {
-        const { data } = await Login(this.user)
-        console.log(data)
-
+        const { data } = await login(this.user)
         this.$toast.success('登录成功')
+        this.$store.commit('setUser', data.data)
+        this.$router.push('/')
       } catch (error) {
         console.log('登录失败', error)
         this.$toast.fail('登录失败，手机号或验证码错误')
